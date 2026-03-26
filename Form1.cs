@@ -17,64 +17,33 @@ namespace SimpleCalculator
             // 1. 숫자 입력 (0-9)
             if (char.IsDigit(e.KeyChar))
             {
-                if (isNewNum)
-                {
-                    txtDisplay.Text = e.KeyChar.ToString();
-                    isNewNum = false; // 이제 숫자를 이어 붙여야 함
-                }
-                else
-                {
-                    txtDisplay.Text += e.KeyChar;
-                }
+                // 숫자 버튼을 눌렀을 때와 동일한 함수 호출
+                AddNumber(e.KeyChar.ToString());
                 e.Handled = true;
             }
-            // 2. 연산자 입력 (+, -, *, /)
-            else if ("+-*/".Contains(e.KeyChar))
+            // 2. 연산자 입력 (+, -, *, /, %)
+            else if ("+-*/%".Contains(e.KeyChar))
             {
-                firstNum = int.Parse(txtDisplay.Text); // 현재 숫자 저장
-                selectedOp = e.KeyChar.ToString();    // 어떤 연산인지 저장
-                isNewNum = true;                      // 다음 숫자는 새로 써야 함
+                // 연산자 버튼을 눌렀을 때와 동일한 함수 호출
+                SetOperator(e.KeyChar.ToString());
                 e.Handled = true;
             }
-            // 3. 엔터키 (결과 계산)
-            /*else if (e.KeyChar == (char)Keys.Enter)
+            // 3. 엔터키 (결과 계산) - KeyPress에서는 (char)13
+            else if (e.KeyChar == (char)13)
             {
                 CalculateResult();
-                isNewNum = true;
-                e.Handled = true;
-            } */
-            // 4. ESC키 (초기화 - Clear)
-            else if (e.KeyChar == (char)27) // ESC 아스키 코드
-            {
-                txtDisplay.Text = "0";
-                firstNum = 0;
-                selectedOp = "";
-                isNewNum = true;
                 e.Handled = true;
             }
-            else if ("+-*/".Contains(e.KeyChar))
+            // 4. 백스페이스 (지우기)
+            else if (e.KeyChar == (char)Keys.Back)
             {
-                // 숫자가 입력된 상태에서만 연산자를 받도록 설정
-                if (!isNewNum)
-                {
-                    firstNum = int.Parse(txtDisplay.Text);
-                    isNewNum = true;
-                }
-
-                // 어떤 상황이든 마지막에 누른 연산자로 업데이트!
-                selectedOp = e.KeyChar.ToString();
-
-                // (선택 사항) 현재 어떤 연산자가 선택됐는지 라벨 등에 표시하면 더 친절합니다.
-                // lblOperator.Text = selectedOp; 
-
-                e.Handled = true;
-            }
-            if (e.KeyChar == (char)Keys.Back) //백스페이스 입력
-            {
-                // 위에 만든 마우스 클릭 함수를 그대로 호출
                 btnBack_Click(sender, e);
-
-                // 텍스트박스에 기본 백스페이스 동작이 중복으로 일어나지 않게 막음
+                e.Handled = true;
+            }
+            // 5. ESC (초기화)
+            else if (e.KeyChar == (char)27)
+            {
+                btnC_Click(sender, e);
                 e.Handled = true;
             }
         }
@@ -82,50 +51,84 @@ namespace SimpleCalculator
         {
             try
             {
-                // txtDisplay에 숫자가 아닌 것이 들어있으면 여기서 에러가 날 수 있음
-                int secondNum = int.Parse(txtDisplay.Text);
-                int result = 0;
+                string[] parts = txtDisplay.Text.Split(' ');
 
-                switch (selectedOp)
+                // 2. 수식이 정상적인 형태(숫자 연산자 숫자)인지 확인합니다.
+                if (parts.Length >= 3)
                 {
-                    case "+": result = firstNum + secondNum; break;
-                    case "-": result = firstNum - secondNum; break;
-                    case "*": result = firstNum * secondNum; break;
-                    case "/":
-                        if (secondNum != 0) result = firstNum / secondNum;
-                        else { MessageBox.Show("0으로 나눌 수 없습니다."); return; }
-                        break;
-                }
+                    // 마지막 부분(parts[2])만 숫자로 변환합니다.
+                    int secondNum = int.Parse(parts[parts.Length - 1]);
+                    int result = 0;
 
-                txtResult.Text = result.ToString();
+                    switch (selectedOp)
+                    {
+                        case "+": result = firstNum + secondNum; break;
+                        case "-": result = firstNum - secondNum; break;
+                        case "*": result = firstNum * secondNum; break;
+                        case "/":
+                            if (secondNum != 0) result = firstNum / secondNum;
+                            else { MessageBox.Show("0으로 나눌 수 없습니다."); return; }
+                            break;
+                        case "mod": // 버튼 텍스트가 "mod"라면 이렇게 맞춰주세요.
+                        case "%":
+                            if (secondNum != 0) result = firstNum % secondNum;
+                            else { MessageBox.Show("0으로 나눌 수 없습니다."); return; }
+                            break;
+                    }
+                    string finalFormula = $"{txtDisplay.Text} = {result}";
+                    txtDisplay.Text = finalFormula;
+                    // 결과창에 출력
+                    txtResult.Text = result.ToString();
+
+                    // (선택) 계산 완료 후 입력창을 결과값으로 바꿀지 결정하세요.
+                    // txtDisplay.Text = result.ToString(); 
+                    isNewNum = true;
+                    // ★ 핵심: 전체 수식 문자열 만들기
+                    // parts[0]은 첫번째 숫자, parts[1]은 연산자, secondNum은 두번째 숫자
+                    string fullFormula = $"{parts[0]} {parts[1]} {secondNum} = {result}";
+
+                    // 2. 계산창(Display)에 전체 수식 표시
+                    txtDisplay.Text = fullFormula;
+
+                    // 3. 결과창(Result)에는 숫자만 표시 (깔끔하게)
+                    txtResult.Text = result.ToString();
+
+                    // 4. 리스트박스(History)에 전체 수식 추가
+                    // Insert(0, ...)를 쓰면 최신 기록이 맨 위로 올라옵니다.
+                    lstHistory.Items.Insert(0, fullFormula);
+
+                    // 5. 다음 숫자를 누르면 화면이 지워지도록 설정
+                    isNewNum = true;
+
+                    txtResult.Text = result.ToString();
+                    isNewNum = true;
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("숫자 입력이 올바르지 않습니다: " + ex.Message);
+                MessageBox.Show("계산 중 오류가 발생했습니다: " + ex.Message);
             }
         }
         private void AddNumber(string num)
         {
-            // 만약 연산자를 누른 직후라면? 기존 글자를 지우고 새로 시작!
-            if (isNewNum)
+            // 1. 초기 상태가 "0"이거나, 연산자를 누른 직후(isNewNum)라면 화면을 숫자로 채움
+            if (isNewNum || txtDisplay.Text == "0")
             {
                 txtDisplay.Text = num;
-                isNewNum = false; // 이제 숫자를 새로 시작했으니 다음 숫자는 뒤에 붙여야 함
+                isNewNum = false;
             }
             else
             {
-                // 평소에는 기존 숫자 뒤에 이어 붙임
-                // (단, 처음 숫자가 "0"이면 지우고 시작하는 게 좋음)
-                if (txtDisplay.Text == "0") txtDisplay.Text = num;
-                else txtDisplay.Text += num;
+                // 2. 그 외에는 기존 글자 뒤에 숫자를 이어 붙임
+                txtDisplay.Text += num;
             }
         }
+
         private void btnNum0_Click(object sender, EventArgs e)
         {
             // 기존 텍스트박스 값 뒤에 "0"을 추가합니다.
             AddNumber("0");
         }
-
         private void btnNum1_Click(object sender, EventArgs e)
         {
             // 기존 텍스트박스 값 뒤에 "1"을 추가합니다.
@@ -203,10 +206,17 @@ namespace SimpleCalculator
         {
             if (!string.IsNullOrEmpty(txtDisplay.Text))
             {
-                firstNum = int.Parse(txtDisplay.Text); // 현재 숫자를 저장
-                selectedOp = op;                      // 연산자 저장
-                isNewNum = true;                      // 다음 숫자를 위해 화면 비우기 예고
+                // 1. 현재 화면에 있는 숫자를 첫 번째 숫자로 저장
+                // (이미 수식이 있는 상태라면 결과값을 firstNum으로 잡아야 함)
+                firstNum = int.Parse(txtDisplay.Text);
 
+                selectedOp = op;
+
+                // 2. ★ 핵심: 화면 뒤에 " + "를 붙임
+                txtDisplay.Text += " " + op + " ";
+
+                // 3. 연산자 뒤에 숫자를 이어서 써야 하므로 false로 설정
+                isNewNum = false;
             }
         }
 
@@ -248,20 +258,22 @@ namespace SimpleCalculator
 
         private void btnBack_Click(object sender, EventArgs e)
         {
-            // 지울 글자가 있는지 확인
             if (txtDisplay.Text.Length > 0)
             {
-                // 마지막 한 글자를 제외하고 나머지만 다시 저장
-                txtDisplay.Text = txtDisplay.Text.Substring(0, txtDisplay.Text.Length - 1);
+                // 끝에 공백이 있다면 연산자가 있는 것이므로 3글자(" + ")를 한 번에 지우는 게 편합니다.
+                if (txtDisplay.Text.EndsWith(" "))
+                {
+                    txtDisplay.Text = txtDisplay.Text.Substring(0, txtDisplay.Text.Length - 3);
+                }
+                else
+                {
+                    txtDisplay.Text = txtDisplay.Text.Substring(0, txtDisplay.Text.Length - 1);
+                }
             }
 
-            // 만약 다 지워서 빈칸이 되면 "0"으로 표시하고 새로운 숫자를 받을 준비를 함
-            if (txtDisplay.Text == "")
-            {
-                txtDisplay.Text = "0";
-                isNewNum = true;
-            }
+            if (string.IsNullOrEmpty(txtDisplay.Text)) txtDisplay.Text = "0";
         }
+
 
         private void Calculator_KeyDown(object sender, KeyEventArgs e)
         {
@@ -286,12 +298,86 @@ namespace SimpleCalculator
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
-
         private void btnCE_Click(object sender, EventArgs e)
         {
-            //CE버튼 입력시 현재 입력창만 초기화하고 계산에 필요한 변수들은 유지
-            txtDisplay.Text = "0";
-            isNewNum = true;
+            // 1. 공백을 기준으로 수식을 나눕니다.
+            string[] parts = txtDisplay.Text.Split(' ');
+
+            // 2. 수식이 "숫자 연산자 숫자" 형태라면 마지막 숫자만 지웁니다.
+            if (parts.Length >= 3)
+            {
+                // "5 + 612" -> "5 + " 상태로 만듭니다.
+                txtDisplay.Text = parts[0] + " " + parts[1] + " ";
+            }
+            else
+            {
+                // 3. 연산자 입력 전이거나 숫자만 있는 상태라면 전체를 "0"으로 초기화
+                txtDisplay.Text = "0";
+                isNewNum = true;
+            }
+        }
+
+        private void btnSquare_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(txtDisplay.Text))
+            {
+                // 1. 현재 숫자를 정수로 가져옴
+                int currentNum = int.Parse(txtDisplay.Text);
+
+                // 2. 제곱 계산 (직접 곱하기)
+                int result = currentNum * currentNum;
+
+                // 3. 화면 업데이트
+                txtResult.Text = $"{result}";
+
+                isNewNum = true;
+            }
+        }
+
+        private void btnRoot_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(txtDisplay.Text))
+            {
+                int currentNum = int.Parse(txtDisplay.Text);
+
+                if (currentNum < 0)
+                {
+                    MessageBox.Show("음수의 제곱근은 구할 수 없습니다.");
+                    return;
+                }
+
+                // Math.Sqrt의 결과(double)를 int로 형변환 (소수점 버림)
+                int result = (int)Math.Sqrt(currentNum);
+
+                txtResult.Text = $"{result} (정수값만 표시됩니다)";
+
+                isNewNum = true;
+            }
+        }
+
+        private void btnMod_Click(object sender, EventArgs e)
+        {
+            // 나머지 연산자 기호인 %를 전달합니다.
+            SetOperator("%");
+        }
+
+        private void lstHistory_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (lstHistory.SelectedItem != null)
+            {
+                // 기록에서 "=" 뒤의 숫자(결과값)만 추출
+                string selectedItem = lstHistory.SelectedItem.ToString();
+                string resultValue = selectedItem.Split('=')[1].Trim();
+
+                // 현재 입력창에 그 값을 넣어줌
+                txtDisplay.Text = resultValue;
+                isNewNum = true;
+            }
+        }
+
+        private void btnClrHis_Click(object sender, EventArgs e)
+        {
+            lstHistory.Items.Clear(); // 모든 기록 삭제
         }
     }
 }
