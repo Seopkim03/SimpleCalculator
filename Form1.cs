@@ -1,3 +1,5 @@
+using System.Data;
+
 namespace SimpleCalculator
 {
     public partial class Calculator : Form
@@ -51,67 +53,33 @@ namespace SimpleCalculator
         {
             try
             {
-                string[] parts = txtDisplay.Text.Split(' ');
+                string formula = txtDisplay.Text;
+                if (string.IsNullOrEmpty(formula) || formula.Contains("=")) return;
 
-                // 2. 수식이 정상적인 형태(숫자 연산자 숫자)인지 확인합니다.
-                if (parts.Length >= 3)
-                {
-                    // 마지막 부분(parts[2])만 숫자로 변환합니다.
-                    int secondNum = int.Parse(parts[parts.Length - 1]);
-                    int result = 0;
+                // 특수문자만 컴퓨터용으로 바꿉니다. (%는 그대로 두면 됩니다)
+                string computerFormula = formula.Replace("×", "*")
+                                                .Replace("÷", "/");
 
-                    switch (selectedOp)
-                    {
-                        case "+": result = firstNum + secondNum; break;
-                        case "-": result = firstNum - secondNum; break;
-                        case "*": result = firstNum * secondNum; break;
-                        case "/":
-                            if (secondNum != 0) result = firstNum / secondNum;
-                            else { MessageBox.Show("0으로 나눌 수 없습니다."); return; }
-                            break;
-                        case "mod": // 버튼 텍스트가 "mod"라면 이렇게 맞춰주세요.
-                        case "%":
-                            if (secondNum != 0) result = firstNum % secondNum;
-                            else { MessageBox.Show("0으로 나눌 수 없습니다."); return; }
-                            break;
-                    }
-                    string finalFormula = $"{txtDisplay.Text} = {result}";
-                    txtDisplay.Text = finalFormula;
-                    // 결과창에 출력
-                    txtResult.Text = result.ToString();
+                System.Data.DataTable dt = new System.Data.DataTable();
+                var resultValue = dt.Compute(computerFormula, "");
+                int result = Convert.ToInt32(resultValue);
 
-                    // (선택) 계산 완료 후 입력창을 결과값으로 바꿀지 결정하세요.
-                    // txtDisplay.Text = result.ToString(); 
-                    isNewNum = true;
-                    // ★ 핵심: 전체 수식 문자열 만들기
-                    // parts[0]은 첫번째 숫자, parts[1]은 연산자, secondNum은 두번째 숫자
-                    string fullFormula = $"{parts[0]} {parts[1]} {secondNum} = {result}";
+                // 결과 표시 (예: 10 % 3 = 1)
+                string fullEntry = $"{formula} = {result}";
+                txtDisplay.Text = fullEntry;
+                txtResult.Text = result.ToString();
 
-                    // 2. 계산창(Display)에 전체 수식 표시
-                    txtDisplay.Text = fullFormula;
-
-                    // 3. 결과창(Result)에는 숫자만 표시 (깔끔하게)
-                    txtResult.Text = result.ToString();
-
-                    // 4. 리스트박스(History)에 전체 수식 추가
-                    // Insert(0, ...)를 쓰면 최신 기록이 맨 위로 올라옵니다.
-                    lstHistory.Items.Insert(0, fullFormula);
-
-                    // 5. 다음 숫자를 누르면 화면이 지워지도록 설정
-                    isNewNum = true;
-
-                    txtResult.Text = result.ToString();
-                    isNewNum = true;
-                }
+                // 기록에 저장
+                lstHistory.Items.Insert(0, fullEntry);
+                isNewNum = true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show("계산 중 오류가 발생했습니다: " + ex.Message);
+                MessageBox.Show("수식이 올바르지 않습니다.");
             }
         }
         private void AddNumber(string num)
         {
-            // 1. 초기 상태가 "0"이거나, 연산자를 누른 직후(isNewNum)라면 화면을 숫자로 채움
             if (isNewNum || txtDisplay.Text == "0")
             {
                 txtDisplay.Text = num;
@@ -119,9 +87,30 @@ namespace SimpleCalculator
             }
             else
             {
-                // 2. 그 외에는 기존 글자 뒤에 숫자를 이어 붙임
-                txtDisplay.Text += num;
+                if (txtDisplay.Text.Contains("=")) // 결과가 이미 나온 상태면 새로 시작
+                {
+                    txtDisplay.Text = num;
+                }
+                else
+                {
+                    txtDisplay.Text += num;
+                }
             }
+        }
+
+        // 연산자 버튼 클릭 시 호출 (SetOperator)
+        private void SetOperator(string op)
+        {
+            if (txtDisplay.Text.Contains("="))
+            {
+                txtDisplay.Text = txtResult.Text + " " + op + " ";
+            }
+            else
+            {
+                // "10 mod " 처럼 공백을 넣어줘야 나중에 계산할 때 편합니다.
+                txtDisplay.Text += " " + op + " ";
+            }
+            isNewNum = false;
         }
 
         private void btnNum0_Click(object sender, EventArgs e)
@@ -202,7 +191,7 @@ namespace SimpleCalculator
             SetOperator("/");
         }
         // 중복되는 코드를 줄이기 위한 공통 함수
-        private void SetOperator(string op)
+        /*private void SetOperator(string op)
         {
             if (!string.IsNullOrEmpty(txtDisplay.Text))
             {
@@ -218,7 +207,7 @@ namespace SimpleCalculator
                 // 3. 연산자 뒤에 숫자를 이어서 써야 하므로 false로 설정
                 isNewNum = false;
             }
-        }
+        } */
 
         private void btnOpEq_Click(object sender, EventArgs e)
         {
@@ -321,16 +310,15 @@ namespace SimpleCalculator
         {
             if (!string.IsNullOrEmpty(txtDisplay.Text))
             {
-                // 1. 현재 숫자를 정수로 가져옴
-                int currentNum = int.Parse(txtDisplay.Text);
+                // 현재 화면에 있는 값을 가져와서 제곱식 생성
+                // 예: "5" -> "(5) * (5)",  "(1+2)" -> "(1+2) * (1+2)"
+                string currentText = txtDisplay.Text;
+                if (currentText.Contains("=")) currentText = txtResult.Text; // 결과값에서 이어할 경우
 
-                // 2. 제곱 계산 (직접 곱하기)
-                int result = currentNum * currentNum;
+                string formula = $"({currentText}) * ({currentText})";
 
-                // 3. 화면 업데이트
-                txtResult.Text = $"{result}";
-
-                isNewNum = true;
+                // 계산 실행 및 기록 (CalculateResult와 유사한 로직)
+                ExecuteSpecialCalc(formula, $"{currentText}²");
             }
         }
 
@@ -338,29 +326,56 @@ namespace SimpleCalculator
         {
             if (!string.IsNullOrEmpty(txtDisplay.Text))
             {
-                int currentNum = int.Parse(txtDisplay.Text);
+                string currentText = txtDisplay.Text;
+                if (currentText.Contains("=")) currentText = txtResult.Text;
 
-                if (currentNum < 0)
+                try
                 {
-                    MessageBox.Show("음수의 제곱근은 구할 수 없습니다.");
-                    return;
+                    // 현재 수식의 최종 값을 먼저 구함
+                    DataTable dt = new DataTable();
+                    double val = Convert.ToDouble(dt.Compute(currentText.Replace("×", "*").Replace("÷", "/"), ""));
+
+                    if (val < 0) { MessageBox.Show("음수는 루트를 구할 수 없습니다."); return; }
+
+                    int result = (int)Math.Sqrt(val);
+                    string fullEntry = $"√({currentText}) = {result}";
+
+                    txtDisplay.Text = fullEntry;
+                    txtResult.Text = result.ToString();
+                    lstHistory.Items.Insert(0, fullEntry);
+                    isNewNum = true;
                 }
-
-                // Math.Sqrt의 결과(double)를 int로 형변환 (소수점 버림)
-                int result = (int)Math.Sqrt(currentNum);
-
-                txtResult.Text = $"{result} (정수값만 표시됩니다)";
-
-                isNewNum = true;
+                catch { MessageBox.Show("수식이 올바르지 않습니다."); }
             }
         }
 
         private void btnMod_Click(object sender, EventArgs e)
         {
-            // 나머지 연산자 기호인 %를 전달합니다.
+            // 이제 "mod" 대신 "%"를 넘겨줍니다.
             SetOperator("%");
         }
 
+
+        private void ExecuteSpecialCalc(string computerFormula, string displayLabel)
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                object resultObj = dt.Compute(computerFormula, "");
+                int result = Convert.ToInt32(resultObj);
+
+                string fullEntry = $"{displayLabel} = {result}";
+
+                txtDisplay.Text = fullEntry;
+                txtResult.Text = result.ToString();
+                lstHistory.Items.Insert(0, fullEntry); // 기록에 추가
+                isNewNum = true;
+            }
+            catch
+            {
+                MessageBox.Show("계산 중 오류가 발생했습니다.");
+            }
+        }
         private void lstHistory_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (lstHistory.SelectedItem != null)
@@ -378,6 +393,18 @@ namespace SimpleCalculator
         private void btnClrHis_Click(object sender, EventArgs e)
         {
             lstHistory.Items.Clear(); // 모든 기록 삭제
+        }
+
+        private void btnOpenParen_Click(object sender, EventArgs e)
+        {
+            if (isNewNum || txtDisplay.Text == "0") txtDisplay.Text = "(";
+            else txtDisplay.Text += "(";
+            isNewNum = false;
+        }
+        private void btnCloseParen_Click(object sender, EventArgs e)
+        {
+            txtDisplay.Text += ")";
+            isNewNum = false;
         }
     }
 }

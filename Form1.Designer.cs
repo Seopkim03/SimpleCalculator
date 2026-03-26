@@ -46,13 +46,13 @@
             btnNum2 = new Button();
             btnNum1 = new Button();
             btnOpEq = new Button();
-            btnDot = new Button();
+            btnCloseParen = new Button();
             btnNum0 = new Button();
             btnPlusMinus = new Button();
             txtDisplay = new TextBox();
             txtResult = new TextBox();
             btnBack = new Button();
-            button2 = new Button();
+            btnOpenParen = new Button();
             btnSquare = new Button();
             btnRoot = new Button();
             lstHistory = new ListBox();
@@ -292,16 +292,18 @@
             btnOpEq.UseVisualStyleBackColor = false;
             btnOpEq.Click += btnOpEq_Click;
             // 
-            // btnDot
+            // btnCloseParen
             // 
-            btnDot.BackColor = SystemColors.GrayText;
-            btnDot.Font = new Font("한컴산뜻돋움", 15.75F);
-            btnDot.ForeColor = SystemColors.ButtonHighlight;
-            btnDot.Location = new Point(228, 398);
-            btnDot.Name = "btnDot";
-            btnDot.Size = new Size(102, 39);
-            btnDot.TabIndex = 21;
-            btnDot.UseVisualStyleBackColor = false;
+            btnCloseParen.BackColor = SystemColors.GrayText;
+            btnCloseParen.Font = new Font("한컴산뜻돋움", 15.75F);
+            btnCloseParen.ForeColor = SystemColors.ButtonHighlight;
+            btnCloseParen.Location = new Point(228, 398);
+            btnCloseParen.Name = "btnCloseParen";
+            btnCloseParen.Size = new Size(102, 39);
+            btnCloseParen.TabIndex = 21;
+            btnCloseParen.Text = ")";
+            btnCloseParen.UseVisualStyleBackColor = false;
+            btnCloseParen.Click += btnCloseParen_Click;
             // 
             // btnNum0
             // 
@@ -321,7 +323,7 @@
             btnPlusMinus.BackColor = SystemColors.GrayText;
             btnPlusMinus.Font = new Font("한컴산뜻돋움", 15.75F);
             btnPlusMinus.ForeColor = SystemColors.ButtonHighlight;
-            btnPlusMinus.Location = new Point(12, 398);
+            btnPlusMinus.Location = new Point(228, 218);
             btnPlusMinus.Name = "btnPlusMinus";
             btnPlusMinus.Size = new Size(102, 39);
             btnPlusMinus.TabIndex = 19;
@@ -358,16 +360,18 @@
             btnBack.UseVisualStyleBackColor = false;
             btnBack.Click += btnBack_Click;
             // 
-            // button2
+            // btnOpenParen
             // 
-            button2.BackColor = SystemColors.GrayText;
-            button2.Font = new Font("한컴산뜻돋움", 15.75F);
-            button2.ForeColor = SystemColors.ButtonHighlight;
-            button2.Location = new Point(228, 218);
-            button2.Name = "button2";
-            button2.Size = new Size(102, 39);
-            button2.TabIndex = 31;
-            button2.UseVisualStyleBackColor = false;
+            btnOpenParen.BackColor = SystemColors.GrayText;
+            btnOpenParen.Font = new Font("한컴산뜻돋움", 15.75F);
+            btnOpenParen.ForeColor = SystemColors.ButtonHighlight;
+            btnOpenParen.Location = new Point(12, 398);
+            btnOpenParen.Name = "btnOpenParen";
+            btnOpenParen.Size = new Size(102, 39);
+            btnOpenParen.TabIndex = 31;
+            btnOpenParen.Text = "(";
+            btnOpenParen.UseVisualStyleBackColor = false;
+            btnOpenParen.Click += btnOpenParen_Click;
             // 
             // btnSquare
             // 
@@ -428,13 +432,13 @@
             Controls.Add(btnClrHis);
             Controls.Add(lstHistory);
             Controls.Add(btnBack);
-            Controls.Add(button2);
+            Controls.Add(btnOpenParen);
             Controls.Add(btnSquare);
             Controls.Add(btnRoot);
             Controls.Add(txtResult);
             Controls.Add(txtDisplay);
             Controls.Add(btnOpEq);
-            Controls.Add(btnDot);
+            Controls.Add(btnCloseParen);
             Controls.Add(btnNum0);
             Controls.Add(btnPlusMinus);
             Controls.Add(btnOpPlus);
@@ -483,13 +487,13 @@
         private Button btnNum2;
         private Button btnNum1;
         private Button btnOpEq;
-        private Button btnDot;
+        private Button btnCloseParen;
         private Button btnNum0;
         private Button btnPlusMinus;
         private TextBox txtDisplay;
         private TextBox txtResult;
         private Button btnBack;
-        private Button button2;
+        private Button btnOpenParen;
         private Button btnSquare;
         private Button btnRoot;
         private ListBox lstHistory;
