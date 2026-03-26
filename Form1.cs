@@ -11,7 +11,7 @@ namespace SimpleCalculator
         string selectedOp = ""; // 선택된 연산자 (+, -, *, /) 저장
         bool isNewNum = true;   // 새 숫자를 입력할 타이밍인지 확인
 
-        
+
         private void Calculator_KeyPress(object sender, KeyPressEventArgs e)
         {
             // 1. 숫자 입력 (0-9)
@@ -198,13 +198,32 @@ namespace SimpleCalculator
                 firstNum = int.Parse(txtDisplay.Text); // 현재 숫자를 저장
                 selectedOp = op;                      // 연산자 저장
                 isNewNum = true;                      // 다음 숫자를 위해 화면 비우기 예고
-                                                    
+
             }
         }
 
         private void btnOpEq_Click(object sender, EventArgs e)
         {
             CalculateResult();
+        }
+
+        private void btnPlusMinus_Click(object sender, EventArgs e)
+        {
+            // 1. 현재 입력창이 비어있거나 "0"이면 바꿀 필요가 없음
+            if (string.IsNullOrEmpty(txtDisplay.Text) || txtDisplay.Text == "0")
+            {
+                return;
+            }
+
+            // 2. 현재 텍스트박스의 숫자를 정수로 변환
+            if (int.TryParse(txtDisplay.Text, out int currentVal))
+            {
+                // 3. -1을 곱해서 부호 반전
+                currentVal *= -1;
+
+                // 4. 결과를 다시 텍스트박스에 표시
+                txtDisplay.Text = currentVal.ToString();
+            }
         }
     }
 }
