@@ -225,5 +225,17 @@ namespace SimpleCalculator
                 txtDisplay.Text = currentVal.ToString();
             }
         }
+
+        private void btnC_Click(object sender, EventArgs e)
+        {
+            // 1. 입력창과 결과창을 초기화합니다.
+            txtDisplay.Text = "";      
+            txtResult.Text = "";       // 결과창은 비워줍니다.
+
+            // 2. 메모리에 저장된 계산용 변수들을 초기화합니다.
+            firstNum = 0;              // 저장된 첫 번째 숫자 초기화
+            selectedOp = "";           // 선택된 연산자 초기화
+            isNewNum = true;           // 다음 숫자를 누르면 "0"을 지우고 새로 써지도록 설정
+        }
     }
 }
