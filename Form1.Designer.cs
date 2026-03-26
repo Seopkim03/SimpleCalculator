@@ -1,6 +1,6 @@
 ﻿namespace SimpleCalculator
 {
-    partial class Form1
+    partial class Calculator
     {
         /// <summary>
         ///  Required designer variable.
@@ -49,7 +49,7 @@
             btnDot = new Button();
             btnNum0 = new Button();
             btnPlusMinus = new Button();
-            txtCal = new TextBox();
+            txtDisplay = new TextBox();
             txtResult = new TextBox();
             btnBack = new Button();
             button2 = new Button();
@@ -104,6 +104,7 @@
             btnOpDiv.TabIndex = 6;
             btnOpDiv.Text = "÷";
             btnOpDiv.UseVisualStyleBackColor = true;
+            btnOpDiv.Click += btnOpDiv_Click;
             // 
             // btnOpTimes
             // 
@@ -114,6 +115,7 @@
             btnOpTimes.TabIndex = 10;
             btnOpTimes.Text = "×";
             btnOpTimes.UseVisualStyleBackColor = true;
+            btnOpTimes.Click += btnOpTimes_Click;
             // 
             // btnNum9
             // 
@@ -123,6 +125,7 @@
             btnNum9.TabIndex = 9;
             btnNum9.Text = "9";
             btnNum9.UseVisualStyleBackColor = true;
+            btnNum9.Click += btnNum9_Click;
             // 
             // btnNum8
             // 
@@ -132,6 +135,7 @@
             btnNum8.TabIndex = 8;
             btnNum8.Text = "8";
             btnNum8.UseVisualStyleBackColor = true;
+            btnNum8.Click += btnNum8_Click;
             // 
             // btnNum7
             // 
@@ -141,6 +145,7 @@
             btnNum7.TabIndex = 7;
             btnNum7.Text = "7";
             btnNum7.UseVisualStyleBackColor = true;
+            btnNum7.Click += btnNum7_Click;
             // 
             // btnOpMinus
             // 
@@ -151,6 +156,7 @@
             btnOpMinus.TabIndex = 14;
             btnOpMinus.Text = "-";
             btnOpMinus.UseVisualStyleBackColor = true;
+            btnOpMinus.Click += btnOpMinus_Click;
             // 
             // btnNum6
             // 
@@ -160,6 +166,7 @@
             btnNum6.TabIndex = 13;
             btnNum6.Text = "6";
             btnNum6.UseVisualStyleBackColor = true;
+            btnNum6.Click += btnNum6_Click;
             // 
             // btnNum5
             // 
@@ -169,6 +176,7 @@
             btnNum5.TabIndex = 12;
             btnNum5.Text = "5";
             btnNum5.UseVisualStyleBackColor = true;
+            btnNum5.Click += btnNum5_Click;
             // 
             // btnNum4
             // 
@@ -178,6 +186,7 @@
             btnNum4.TabIndex = 11;
             btnNum4.Text = "4";
             btnNum4.UseVisualStyleBackColor = true;
+            btnNum4.Click += btnNum4_Click;
             // 
             // btnOpPlus
             // 
@@ -188,6 +197,7 @@
             btnOpPlus.TabIndex = 18;
             btnOpPlus.Text = "+";
             btnOpPlus.UseVisualStyleBackColor = true;
+            btnOpPlus.Click += btnOpPlus_Click;
             // 
             // btnNum3
             // 
@@ -197,6 +207,7 @@
             btnNum3.TabIndex = 17;
             btnNum3.Text = "3";
             btnNum3.UseVisualStyleBackColor = true;
+            btnNum3.Click += btnNum3_Click;
             // 
             // btnNum2
             // 
@@ -206,6 +217,7 @@
             btnNum2.TabIndex = 16;
             btnNum2.Text = "2";
             btnNum2.UseVisualStyleBackColor = true;
+            btnNum2.Click += btnNum2_Click;
             // 
             // btnNum1
             // 
@@ -215,6 +227,7 @@
             btnNum1.TabIndex = 15;
             btnNum1.Text = "1";
             btnNum1.UseVisualStyleBackColor = true;
+            btnNum1.Click += btnNum1_Click;
             // 
             // btnOpEq
             // 
@@ -225,6 +238,7 @@
             btnOpEq.TabIndex = 22;
             btnOpEq.Text = "=";
             btnOpEq.UseVisualStyleBackColor = true;
+            btnOpEq.Click += btnOpEq_Click;
             // 
             // btnDot
             // 
@@ -243,7 +257,7 @@
             btnNum0.TabIndex = 20;
             btnNum0.Text = "0";
             btnNum0.UseVisualStyleBackColor = true;
-            btnNum0.Click += button19_Click;
+            btnNum0.Click += btnNum0_Click;
             // 
             // btnPlusMinus
             // 
@@ -254,13 +268,13 @@
             btnPlusMinus.Text = "+/-";
             btnPlusMinus.UseVisualStyleBackColor = true;
             // 
-            // txtCal
+            // txtDisplay
             // 
-            txtCal.Font = new Font("맑은 고딕", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 129);
-            txtCal.Location = new Point(14, 78);
-            txtCal.Name = "txtCal";
-            txtCal.Size = new Size(424, 35);
-            txtCal.TabIndex = 27;
+            txtDisplay.Font = new Font("맑은 고딕", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 129);
+            txtDisplay.Location = new Point(14, 78);
+            txtDisplay.Name = "txtDisplay";
+            txtDisplay.Size = new Size(424, 35);
+            txtDisplay.TabIndex = 27;
             // 
             // txtResult
             // 
@@ -309,7 +323,7 @@
             button6.Text = "+/-";
             button6.UseVisualStyleBackColor = true;
             // 
-            // Form1
+            // Calculator
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -319,7 +333,7 @@
             Controls.Add(button3);
             Controls.Add(button6);
             Controls.Add(txtResult);
-            Controls.Add(txtCal);
+            Controls.Add(txtDisplay);
             Controls.Add(btnOpEq);
             Controls.Add(btnDot);
             Controls.Add(btnNum0);
@@ -341,8 +355,10 @@
             Controls.Add(btnC);
             Controls.Add(btnCE);
             Controls.Add(lblCal);
-            Name = "Form1";
-            Text = "Form1";
+            KeyPreview = true;
+            Name = "Calculator";
+            Text = "Calculator v1.0";
+            KeyPress += Calculator_KeyPress;
             ResumeLayout(false);
             PerformLayout();
         }
@@ -370,7 +386,7 @@
         private Button btnDot;
         private Button btnNum0;
         private Button btnPlusMinus;
-        private TextBox txtCal;
+        private TextBox txtDisplay;
         private TextBox txtResult;
         private Button btnBack;
         private Button button2;
