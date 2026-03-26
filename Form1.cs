@@ -37,12 +37,12 @@ namespace SimpleCalculator
                 e.Handled = true;
             }
             // 3. 엔터키 (결과 계산)
-            else if (e.KeyChar == (char)Keys.Enter)
+            /*else if (e.KeyChar == (char)Keys.Enter)
             {
                 CalculateResult();
                 isNewNum = true;
                 e.Handled = true;
-            }
+            } */
             // 4. ESC키 (초기화 - Clear)
             else if (e.KeyChar == (char)27) // ESC 아스키 코드
             {
@@ -67,6 +67,14 @@ namespace SimpleCalculator
                 // (선택 사항) 현재 어떤 연산자가 선택됐는지 라벨 등에 표시하면 더 친절합니다.
                 // lblOperator.Text = selectedOp; 
 
+                e.Handled = true;
+            }
+            if (e.KeyChar == (char)Keys.Back) //백스페이스 입력
+            {
+                // 위에 만든 마우스 클릭 함수를 그대로 호출
+                btnBack_Click(sender, e);
+
+                // 텍스트박스에 기본 백스페이스 동작이 중복으로 일어나지 않게 막음
                 e.Handled = true;
             }
         }
@@ -229,13 +237,61 @@ namespace SimpleCalculator
         private void btnC_Click(object sender, EventArgs e)
         {
             // 1. 입력창과 결과창을 초기화합니다.
-            txtDisplay.Text = "";      
+            txtDisplay.Text = "";
             txtResult.Text = "";       // 결과창은 비워줍니다.
 
             // 2. 메모리에 저장된 계산용 변수들을 초기화합니다.
             firstNum = 0;              // 저장된 첫 번째 숫자 초기화
             selectedOp = "";           // 선택된 연산자 초기화
             isNewNum = true;           // 다음 숫자를 누르면 "0"을 지우고 새로 써지도록 설정
+        }
+
+        private void btnBack_Click(object sender, EventArgs e)
+        {
+            // 지울 글자가 있는지 확인
+            if (txtDisplay.Text.Length > 0)
+            {
+                // 마지막 한 글자를 제외하고 나머지만 다시 저장
+                txtDisplay.Text = txtDisplay.Text.Substring(0, txtDisplay.Text.Length - 1);
+            }
+
+            // 만약 다 지워서 빈칸이 되면 "0"으로 표시하고 새로운 숫자를 받을 준비를 함
+            if (txtDisplay.Text == "")
+            {
+                txtDisplay.Text = "0";
+                isNewNum = true;
+            }
+        }
+
+        private void Calculator_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                CalculateResult(); // 계산 실행
+                isNewNum = true;
+
+                // 엔터키가 다른 버튼을 누르는 것을 방지하고 이벤트를 여기서 종료함
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+        }
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData) //엔터키로 결과 실행
+        {
+            // 엔터 키가 눌렸을 때
+            if (keyData == Keys.Enter)
+            {
+                CalculateResult(); // 계산 실행
+                isNewNum = true;   // 다음 숫자를 위해 상태 업데이트
+                return true;       // 이벤트를 여기서 처리했음을 알리고 종료 (중복 방지)
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        private void btnCE_Click(object sender, EventArgs e)
+        {
+            //CE버튼 입력시 현재 입력창만 초기화하고 계산에 필요한 변수들은 유지
+            txtDisplay.Text = "0";
+            isNewNum = true;
         }
     }
 }

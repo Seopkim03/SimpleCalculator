@@ -76,6 +76,7 @@
             btnCE.Text = "CE";
             btnCE.UseVisualStyleBackColor = true;
             btnCE.UseWaitCursor = true;
+            btnCE.Click += btnCE_Click;
             // 
             // btnC
             // 
@@ -295,6 +296,7 @@
             btnBack.TabIndex = 32;
             btnBack.Text = "←";
             btnBack.UseVisualStyleBackColor = true;
+            btnBack.Click += btnBack_Click;
             // 
             // button2
             // 
@@ -327,8 +329,10 @@
             // 
             // Calculator
             // 
+            AcceptButton = btnOpEq;
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.Control;
             ClientSize = new Size(514, 612);
             Controls.Add(btnBack);
             Controls.Add(button2);
@@ -360,6 +364,7 @@
             KeyPreview = true;
             Name = "Calculator";
             Text = "Calculator v1.0";
+            KeyDown += Calculator_KeyDown;
             KeyPress += Calculator_KeyPress;
             ResumeLayout(false);
             PerformLayout();
